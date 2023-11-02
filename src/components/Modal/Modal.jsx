@@ -5,12 +5,18 @@ import PropTypes from 'prop-types';
 export const Modal = ({isOpen, close, imgInfo}) => {
 
   useEffect(() =>{
-    if(isOpen){
-      document.addEventListener('keydown', handleKeyDown)
-    } else {
-      document.removeEventListener('keydown', handleKeyDown)
+    const handleKeyDown = ({key}) => {
+      if(key === 'Escape'){
+        close();
+      }
     }
-  },[isOpen])
+      document.addEventListener('keydown', handleKeyDown)
+
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    
+  },[close])
  
 
  const  handleClickOutside = (e) => {
@@ -18,11 +24,7 @@ export const Modal = ({isOpen, close, imgInfo}) => {
       close();
     }
   };
-  const handleKeyDown = ({key}) => {
-    if(key === 'Escape'){
-      close();
-    }
-  }
+
     return (
       <StyledOverlay onClick={handleClickOutside}>
         <StyledModal >
