@@ -18,7 +18,10 @@ export const App = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [imgInfo, setImgInfo] = useState(null);
 
+  // git hub не пропустив з [_, setError]
+ if(error){
   console.log(error);
+ }
 
   useEffect(() => {
     const getPhotos = async ({ page, q, fn }) => {
