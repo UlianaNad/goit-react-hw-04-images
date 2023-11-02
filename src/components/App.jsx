@@ -10,22 +10,21 @@ import Loader from './Loader/Loader';
 
 export const App = () => {
   const [loading, setLoading] = useState(false);
-  const [setError] = useState(null);
+  const [_, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [photos, setPhotos] = useState([]);
-  const [per_page] = useState(12);
+
   const [q, setQ] = useState('');
   const [total, setTotal] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [imgInfo, setImgInfo] = useState(null);
 
   useEffect(() => {
-    const getPhotos = async ({ page, per_page, q, fn }) => {
+    const getPhotos = async ({ page, q, fn }) => {
       try {
         setLoading(true);
         const { hits, total } = await fn({
           q: q,
-          per_page: per_page,
           page: page,
         });
         setPhotos(prev => [...prev, ...hits]);
@@ -38,11 +37,11 @@ export const App = () => {
       }
     };
     if (q) {
-      getPhotos({ page, per_page, q: q, fn: fetchPhotosByQuery });
+      getPhotos({ page, q: q, fn: fetchPhotosByQuery });
     } else {
-      getPhotos({ page, per_page, fn: fetchPhotos });
+      getPhotos({ page, fn: fetchPhotos });
     }
-  }, [page, per_page, q, setError]);
+  }, [page, q, setError]);
 
   const handleQuery = q => {
     setQ(q);
