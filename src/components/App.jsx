@@ -10,7 +10,6 @@ import Loader from './Loader/Loader';
 
 export const App = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [photos, setPhotos] = useState([]);
   const [q, setQ] = useState('');
@@ -18,10 +17,6 @@ export const App = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [imgInfo, setImgInfo] = useState(null);
 
-  // git hub не пропустив з [_, setError]
- if(error){
-  console.log(error);
- }
 
   useEffect(() => {
     const getPhotos = async ({ page, q, fn }) => {
@@ -34,7 +29,6 @@ export const App = () => {
         setPhotos(prev => [...prev, ...hits]);
         setTotal(total);
       } catch (error) {
-        setError(error.message);
         toast.error(error.message);
       } finally {
         setLoading(false);
