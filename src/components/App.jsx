@@ -10,14 +10,15 @@ import Loader from './Loader/Loader';
 
 export const App = () => {
   const [loading, setLoading] = useState(false);
-  const [_, setError] = useState(null);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [photos, setPhotos] = useState([]);
-
   const [q, setQ] = useState('');
   const [total, setTotal] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [imgInfo, setImgInfo] = useState(null);
+
+  console.log(error);
 
   useEffect(() => {
     const getPhotos = async ({ page, q, fn }) => {
