@@ -39,7 +39,7 @@ export const App = () => {
     } else {
       getPhotos({ page, fn: fetchPhotos });
     }
-  }, [page, q, setError]);
+  }, [page, q]);
 
   const handleQuery = q => {
     setQ(q);
