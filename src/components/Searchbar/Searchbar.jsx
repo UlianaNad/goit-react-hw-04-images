@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import {
   StyledButton,
   StyledForm,
@@ -7,23 +7,21 @@ import {
 } from './Searchbar.styled';
 import PropTypes from 'prop-types';
 
-export class Searchbar extends Component {
-  state = {
-    query: '',
+export const Searchbar = ({handleQuery}) => {
+  const [query, setQuery] = useState('')
+  
+  const handleSubmit = e => {
+    e.preventDefault();
+    handleQuery(query);
+    setQuery('')
+  };
+  const handleChangeInput = e => {
+    setQuery(e.target.value)
   };
 
-  handleSubmit = e => {
-    e.preventDefault();
-    this.props.setQuery(this.state.query);
-    this.setState({ query: '' });
-  };
-  handleChangeInput = e => {
-    this.setState({ query: e.target.value });
-  };
-  render() {
     return (
       <StyledHeader>
-        <StyledForm onSubmit={this.handleSubmit}>
+        <StyledForm onSubmit={handleSubmit}>
           <StyledButton type="submit">
             <svg
               width="25"
@@ -35,8 +33,8 @@ export class Searchbar extends Component {
           </StyledButton>
 
           <StyledInput
-            onChange={this.handleChangeInput}
-            value={this.state.query}
+            onChange={handleChangeInput}
+            value={query}
             type="search"
             autoComplete="off"
             autoFocus
@@ -45,12 +43,12 @@ export class Searchbar extends Component {
         </StyledForm>
       </StyledHeader>
     );
-  }
+
 }
 
 
 Searchbar.propTypes = {
-  setQuery: PropTypes.func.isRequired,
+  handleQuery: PropTypes.func.isRequired,
 };
 
 export default Searchbar;

@@ -1,99 +1,86 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import { fetchPhotos, fetchPhotosByQuery } from 'services/api';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Button from './Button/Button';
-import Modal from './Modal/Modal';
+import {Modal} from './Modal/Modal';
 import Loader from './Loader/Loader';
 
-export default class App extends Component {
-  state = {
-    loading: false,
-    error: null,
-    photos: [],
-    page: 1,
-    per_page: 12,
-    q: '',
-    total: null,
-    isOpen: false,
-    imgInfo: null,
-  };
+export const App = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [photos, setPhotos] = useState([]);
+  const [per_page, setPer_page] = useState(12);
+  const [q, setQ] = useState('');
+  const [total, setTotal] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [imgInfo, setImgInfo] = useState(null);
 
-  async componentDidMount() {
-    const { page, per_page } = this.state;
-    this.getPhotos({ page, per_page, fn: fetchPhotos });
-  }
-
-  async componentDidUpdate(prevProps, prevState) {
-    const { page, per_page, q } = this.state;
-    if (!q && prevState.page !== page) {
-      this.getPhotos({ page, per_page, fn: fetchPhotos });
+  useEffect(()=>{
+    if(q){
+      getPhotos({ page, per_page, q: q, fn: fetchPhotosByQuery })
+    } else{
+      getPhotos({ page, per_page, fn: fetchPhotos })
     }
-    if (q && (q !== prevState.q || page !== prevState.page)) {
-      this.getPhotos({ page, per_page, q: q, fn: fetchPhotosByQuery });
-    }
-  }
+  },[page, per_page, q])
 
-  getPhotos = async ({ page, per_page, q, fn }) => {
-    this.setState({ loading: true });
+  const getPhotos = async ({ page, per_page, q, fn }) => {
     try {
+      setLoading(true);
       const { hits, total } = await fn({
         q: q,
         per_page: per_page,
         page: page,
       });
-      // this.setState(prev => ({ photos: [...prev.photos, ...hits], total:total }));
-      if (hits && Array.isArray(hits)) {
-        this.setState(prev => ({ photos: [...prev.photos, ...hits], total }));
-      }
+      setPhotos(prev => [...prev, ...hits]);
+      setTotal(total);
     } catch (error) {
+      setError(error.message);
       toast.error(error.message);
     } finally {
-      this.setState({ loading: false });
+      setLoading(false);
     }
   };
 
-  handleQuery = q => {
-    this.setState({ q, photos: [], page: 1 });
+  const handleQuery = q => {
+    setQ(q)
+    setPhotos([])
+    setPage(1)
   };
 
-  toggleModal = imgInfo => {
-    this.setState(prev => ({ isOpen: !prev.isOpen, imgInfo }));
+  const toggleModal = imgInfo => {
+    setIsOpen(prev => !prev)
+    setImgInfo(imgInfo)
   };
 
-  handleLoadMore = () => {
-    this.setState(prev => ({ page: prev.page + 1 }));
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1)
   };
 
-  render() {
-    const { photos, q, isOpen, imgInfo, total, loading } = this.state;
+  return (
+    <div>
+      <Searchbar handleQuery={handleQuery} />
+      {q && (
+        <h2>
+          We found {total} picture by search word:{q}
+        </h2>
+      )}
+      {loading && !photos.length ? (
+        <Loader />
+      ) : (
+        <ImageGallery toggleModal={toggleModal} photos={photos} />
+      )}
 
-    return (
-      <div>
-        <Searchbar setQuery={this.handleQuery} />
-        {q && (
-          <h2>
-            We found {total} picture by search word:{q}
-          </h2>
-        )}
-        {loading && !photos.length ? (
-          <Loader />
-        ) : (
-          <ImageGallery toggleModal={this.toggleModal} photos={photos} />
-        )}
-
-        {total > photos.length ? (
-          <Button onClick={this.handleLoadMore}>
-            {loading ? 'Loading...' : 'Load more'}
-          </Button>
-        ) : null}
-        {isOpen ? (
-          <Modal close={this.toggleModal} imgInfo={imgInfo}></Modal>
-        ) : null}
-        <ToastContainer />
-      </div>
-    );
-  }
-}
+      {total > photos.length ? (
+        <Button onClick={handleLoadMore}>
+          {loading ? 'Loading...' : 'Load more'}
+        </Button>
+      ) : null}
+      {isOpen ? <Modal close={toggleModal} imgInfo={imgInfo} isOpen={isOpen}></Modal> : null}
+      <ToastContainer />
+    </div>
+  );
+};
